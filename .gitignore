@@ -1,0 +1,18 @@
+# Local services (MinIO, Nessie, ClickHouse)
+.tools/
+.data/
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+
+# Env
+.env
+
+# Spark
+spark-warehouse/
+metastore_db/
+derby.log

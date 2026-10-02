@@ -1,0 +1,90 @@
+{
+  "tables": [
+    {
+      "table": "lakehouse.bronze.customers",
+      "checks": [
+        { "name": "customer_id_not_null", "type": "not_null", "column": "customer_id" },
+        { "name": "segment_in_whitelist", "type": "in_set", "column": "segment", "values": ["consumer", "professional", "enterprise"] },
+        { "name": "row_count", "type": "row_count", "min": 1000, "max": 1000, "severity": "warn" }
+      ]
+    },
+    {
+      "table": "lakehouse.bronze.products",
+      "checks": [
+        { "name": "product_id_not_null", "type": "not_null", "column": "product_id" },
+        { "name": "unit_price_positive", "type": "positive", "column": "unit_price" },
+        { "name": "launch_date_no_future", "type": "future_beyond", "column": "launch_date", "days": 200 }
+      ]
+    },
+    {
+      "table": "lakehouse.bronze.orders",
+      "checks": [
+        { "name": "order_id_not_null", "type": "not_null", "column": "order_id" },
+        { "name": "order_id_unique", "type": "unique", "columns": ["order_id"] },
+        { "name": "status_in_whitelist", "type": "in_set", "column": "status", "values": ["completed", "cancelled", "refunded"] },
+        { "name": "channel_in_whitelist", "type": "in_set", "column": "channel", "values": ["marketplace", "website", "pos"] },
+        { "name": "data_covers_january", "type": "min_date_before", "column": "order_date", "date": "2026-01-10" },
+        { "name": "data_covers_december", "type": "max_date_after", "column": "order_date", "date": "2026-12-20" },
+        { "name": "no_future_beyond_30d", "type": "future_beyond", "column": "order_date", "days": 200, "severity": "warn" }
+      ]
+    },
+    {
+      "table": "lakehouse.bronze.order_items",
+      "checks": [
+        { "name": "order_item_id_not_null", "type": "not_null", "column": "order_item_id" },
+        { "name": "order_item_id_unique", "type": "unique", "columns": ["order_item_id"] },
+        { "name": "quantity_positive", "type": "positive", "column": "quantity" },
+        { "name": "order_fk", "type": "fk", "column": "order_id", "ref_table": "lakehouse.bronze.orders", "ref_column": "order_id" }
+      ]
+    },
+    {
+      "table": "lakehouse.silver.dim_customers",
+      "checks": [
+        { "name": "customer_id_not_null", "type": "not_null", "column": "customer_id" },
+        { "name": "no_duplicate_current", "type": "unique", "columns": ["customer_id"], "severity": "warn" },
+        { "name": "valid_window", "type": "sql", "query": "SELECT count(*) AS n FROM lakehouse.silver.dim_customers WHERE valid_to < valid_from" },
+        { "name": "is_current_flag", "type": "in_set", "column": "is_current", "values": [true, false] },
+        { "name": "one_current_per_customer", "type": "sql", "query": "SELECT count(*) AS n FROM (SELECT customer_id FROM lakehouse.silver.dim_customers WHERE is_current = TRUE GROUP BY customer_id HAVING count(*) > 1)" }
+      ]
+    },
+    {
+      "table": "lakehouse.silver.dim_products",
+      "checks": [
+        { "name": "product_id_not_null", "type": "not_null", "column": "product_id" },
+        { "name": "product_id_unique", "type": "unique", "columns": ["product_id"] },
+        { "name": "unit_price_positive", "type": "positive", "column": "unit_price" }
+      ]
+    },
+    {
+      "table": "lakehouse.silver.fact_sales",
+      "checks": [
+        { "name": "order_id_not_null", "type": "not_null", "column": "order_id" },
+        { "name": "quantity_positive", "type": "positive", "column": "quantity" },
+        { "name": "gross_amount_positive", "type": "positive", "column": "gross_amount" },
+        { "name": "discount_in_range", "type": "sql", "query": "SELECT count(*) AS n FROM lakehouse.silver.fact_sales WHERE discount_pct < 0 OR discount_pct > 0.5" },
+        { "name": "channel_in_whitelist", "type": "in_set", "column": "channel", "values": ["marketplace", "website", "pos"] },
+        { "name": "customer_fk", "type": "fk", "column": "customer_id", "ref_table": "lakehouse.silver.dim_customers", "ref_column": "customer_id" },
+        { "name": "product_fk", "type": "fk", "column": "product_id", "ref_table": "lakehouse.silver.dim_products", "ref_column": "product_id" },
+        { "name": "order_fk", "type": "fk", "column": "order_id", "ref_table": "lakehouse.bronze.orders", "ref_column": "order_id" },
+        { "name": "row_count_range", "type": "row_count", "min": 10000, "max": 30000 }
+      ]
+    },
+    {
+      "table": "lakehouse.gold.daily_sales",
+      "checks": [
+        { "name": "unique_grain", "type": "unique", "columns": ["sale_date", "channel", "category"] },
+        { "name": "gross_amount_positive", "type": "positive", "column": "gross_amount" },
+        { "name": "margin_sane", "type": "sql", "query": "SELECT count(*) AS n FROM lakehouse.gold.daily_sales WHERE margin_pct < -1 OR margin_pct > 1" },
+        { "name": "units_positive", "type": "positive", "column": "units" }
+      ]
+    },
+    {
+      "table": "lakehouse.gold.customer_segments",
+      "checks": [
+        { "name": "segment_unique", "type": "unique", "columns": ["segment"] },
+        { "name": "total_gross_positive", "type": "positive", "column": "total_gross" },
+        { "name": "aov_positive", "type": "positive", "column": "avg_order_value" }
+      ]
+    }
+  ]
+}

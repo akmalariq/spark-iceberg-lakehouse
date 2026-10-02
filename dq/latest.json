@@ -1,0 +1,379 @@
+{
+  "generated_at": "2026-08-13T14:22:58",
+  "overall_status": "WARN",
+  "tables": [
+    {
+      "table": "lakehouse.bronze.customers",
+      "checks": [
+        {
+          "name": "customer_id_not_null",
+          "type": "not_null",
+          "severity": "error",
+          "passed": true,
+          "measured": "0",
+          "detail": "0 NULL rows"
+        },
+        {
+          "name": "segment_in_whitelist",
+          "type": "in_set",
+          "severity": "error",
+          "passed": true,
+          "measured": "0",
+          "detail": "0 values outside whitelist"
+        },
+        {
+          "name": "row_count",
+          "type": "row_count",
+          "severity": "warn",
+          "passed": true,
+          "measured": "1000",
+          "detail": "count=1000 (expected [1000, 1000])"
+        }
+      ]
+    },
+    {
+      "table": "lakehouse.bronze.products",
+      "checks": [
+        {
+          "name": "product_id_not_null",
+          "type": "not_null",
+          "severity": "error",
+          "passed": true,
+          "measured": "0",
+          "detail": "0 NULL rows"
+        },
+        {
+          "name": "unit_price_positive",
+          "type": "positive",
+          "severity": "error",
+          "passed": true,
+          "measured": "0",
+          "detail": "0 non-positive rows"
+        },
+        {
+          "name": "launch_date_no_future",
+          "type": "future_beyond",
+          "severity": "error",
+          "passed": true,
+          "measured": "2026-12-27",
+          "detail": "max=2026-12-27 (must be <= 2027-03-01)"
+        }
+      ]
+    },
+    {
+      "table": "lakehouse.bronze.orders",
+      "checks": [
+        {
+          "name": "order_id_not_null",
+          "type": "not_null",
+          "severity": "error",
+          "passed": true,
+          "measured": "0",
+          "detail": "0 NULL rows"
+        },
+        {
+          "name": "order_id_unique",
+          "type": "unique",
+          "severity": "error",
+          "passed": true,
+          "measured": "0",
+          "detail": "0 duplicate groups"
+        },
+        {
+          "name": "status_in_whitelist",
+          "type": "in_set",
+          "severity": "error",
+          "passed": true,
+          "measured": "0",
+          "detail": "0 values outside whitelist"
+        },
+        {
+          "name": "channel_in_whitelist",
+          "type": "in_set",
+          "severity": "error",
+          "passed": true,
+          "measured": "0",
+          "detail": "0 values outside whitelist"
+        },
+        {
+          "name": "data_covers_january",
+          "type": "min_date_before",
+          "severity": "error",
+          "passed": true,
+          "measured": "2026-01-01",
+          "detail": "min=2026-01-01 (must be <= 2026-01-10)"
+        },
+        {
+          "name": "data_covers_december",
+          "type": "max_date_after",
+          "severity": "error",
+          "passed": true,
+          "measured": "2026-12-28",
+          "detail": "max=2026-12-28 (must be >= 2026-12-20)"
+        },
+        {
+          "name": "no_future_beyond_30d",
+          "type": "future_beyond",
+          "severity": "warn",
+          "passed": true,
+          "measured": "2026-12-28",
+          "detail": "max=2026-12-28 (must be <= 2027-03-01)"
+        }
+      ]
+    },
+    {
+      "table": "lakehouse.bronze.order_items",
+      "checks": [
+        {
+          "name": "order_item_id_not_null",
+          "type": "not_null",
+          "severity": "error",
+          "passed": true,
+          "measured": "0",
+          "detail": "0 NULL rows"
+        },
+        {
+          "name": "order_item_id_unique",
+          "type": "unique",
+          "severity": "error",
+          "passed": true,
+          "measured": "0",
+          "detail": "0 duplicate groups"
+        },
+        {
+          "name": "quantity_positive",
+          "type": "positive",
+          "severity": "error",
+          "passed": true,
+          "measured": "0",
+          "detail": "0 non-positive rows"
+        },
+        {
+          "name": "order_fk",
+          "type": "fk",
+          "severity": "error",
+          "passed": true,
+          "measured": "0",
+          "detail": "0 orphaned values"
+        }
+      ]
+    },
+    {
+      "table": "lakehouse.silver.dim_customers",
+      "checks": [
+        {
+          "name": "customer_id_not_null",
+          "type": "not_null",
+          "severity": "error",
+          "passed": true,
+          "measured": "0",
+          "detail": "0 NULL rows"
+        },
+        {
+          "name": "no_duplicate_current",
+          "type": "unique",
+          "severity": "warn",
+          "passed": false,
+          "measured": "114",
+          "detail": "114 duplicate groups"
+        },
+        {
+          "name": "valid_window",
+          "type": "sql",
+          "severity": "error",
+          "passed": true,
+          "measured": "0",
+          "detail": "0 violating rows"
+        },
+        {
+          "name": "is_current_flag",
+          "type": "in_set",
+          "severity": "error",
+          "passed": true,
+          "measured": "0",
+          "detail": "0 values outside whitelist"
+        },
+        {
+          "name": "one_current_per_customer",
+          "type": "sql",
+          "severity": "error",
+          "passed": true,
+          "measured": "0",
+          "detail": "0 violating rows"
+        }
+      ]
+    },
+    {
+      "table": "lakehouse.silver.dim_products",
+      "checks": [
+        {
+          "name": "product_id_not_null",
+          "type": "not_null",
+          "severity": "error",
+          "passed": true,
+          "measured": "0",
+          "detail": "0 NULL rows"
+        },
+        {
+          "name": "product_id_unique",
+          "type": "unique",
+          "severity": "error",
+          "passed": true,
+          "measured": "0",
+          "detail": "0 duplicate groups"
+        },
+        {
+          "name": "unit_price_positive",
+          "type": "positive",
+          "severity": "error",
+          "passed": true,
+          "measured": "0",
+          "detail": "0 non-positive rows"
+        }
+      ]
+    },
+    {
+      "table": "lakehouse.silver.fact_sales",
+      "checks": [
+        {
+          "name": "order_id_not_null",
+          "type": "not_null",
+          "severity": "error",
+          "passed": true,
+          "measured": "0",
+          "detail": "0 NULL rows"
+        },
+        {
+          "name": "quantity_positive",
+          "type": "positive",
+          "severity": "error",
+          "passed": true,
+          "measured": "0",
+          "detail": "0 non-positive rows"
+        },
+        {
+          "name": "gross_amount_positive",
+          "type": "positive",
+          "severity": "error",
+          "passed": true,
+          "measured": "0",
+          "detail": "0 non-positive rows"
+        },
+        {
+          "name": "discount_in_range",
+          "type": "sql",
+          "severity": "error",
+          "passed": true,
+          "measured": "0",
+          "detail": "0 violating rows"
+        },
+        {
+          "name": "channel_in_whitelist",
+          "type": "in_set",
+          "severity": "error",
+          "passed": true,
+          "measured": "0",
+          "detail": "0 values outside whitelist"
+        },
+        {
+          "name": "customer_fk",
+          "type": "fk",
+          "severity": "error",
+          "passed": true,
+          "measured": "0",
+          "detail": "0 orphaned values"
+        },
+        {
+          "name": "product_fk",
+          "type": "fk",
+          "severity": "error",
+          "passed": true,
+          "measured": "0",
+          "detail": "0 orphaned values"
+        },
+        {
+          "name": "order_fk",
+          "type": "fk",
+          "severity": "error",
+          "passed": true,
+          "measured": "0",
+          "detail": "0 orphaned values"
+        },
+        {
+          "name": "row_count_range",
+          "type": "row_count",
+          "severity": "error",
+          "passed": true,
+          "measured": "27623",
+          "detail": "count=27623 (expected [10000, 30000])"
+        }
+      ]
+    },
+    {
+      "table": "lakehouse.gold.daily_sales",
+      "checks": [
+        {
+          "name": "unique_grain",
+          "type": "unique",
+          "severity": "error",
+          "passed": true,
+          "measured": "0",
+          "detail": "0 duplicate groups"
+        },
+        {
+          "name": "gross_amount_positive",
+          "type": "positive",
+          "severity": "error",
+          "passed": true,
+          "measured": "0",
+          "detail": "0 non-positive rows"
+        },
+        {
+          "name": "margin_sane",
+          "type": "sql",
+          "severity": "error",
+          "passed": true,
+          "measured": "0",
+          "detail": "0 violating rows"
+        },
+        {
+          "name": "units_positive",
+          "type": "positive",
+          "severity": "error",
+          "passed": true,
+          "measured": "0",
+          "detail": "0 non-positive rows"
+        }
+      ]
+    },
+    {
+      "table": "lakehouse.gold.customer_segments",
+      "checks": [
+        {
+          "name": "segment_unique",
+          "type": "unique",
+          "severity": "error",
+          "passed": true,
+          "measured": "0",
+          "detail": "0 duplicate groups"
+        },
+        {
+          "name": "total_gross_positive",
+          "type": "positive",
+          "severity": "error",
+          "passed": true,
+          "measured": "0",
+          "detail": "0 non-positive rows"
+        },
+        {
+          "name": "aov_positive",
+          "type": "positive",
+          "severity": "error",
+          "passed": true,
+          "measured": "0",
+          "detail": "0 non-positive rows"
+        }
+      ]
+    }
+  ]
+}
